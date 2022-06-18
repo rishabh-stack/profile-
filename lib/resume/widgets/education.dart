@@ -1,11 +1,35 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+//import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 
 
 
 Uuid uuid = const Uuid();
+
+class EmptyContainer extends StatefulWidget {
+  const EmptyContainer({Key? key}) : super(key: key);
+
+  @override
+  State<EmptyContainer> createState() => _EmptyContainerState();
+}
+
+class _EmptyContainerState extends State<EmptyContainer> {
+  @override
+  Widget build(BuildContext context) {
+    return Container();
+  }
+}
+
+// class EmptyContainer extends StatelessWidget {
+//   const EmptyContainer({Key? key}) : super(key: key);
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container();
+//   }
+// }
+
 
 class Education extends StatefulWidget {
   const Education({Key? key}) : super(key: key);
@@ -19,37 +43,14 @@ class _EducationState extends State<Education> {
 
   List<Widget> _educationList = <Widget>[];
 
-  int indexId = 0;
-
-  void addEducation(int index) {
+  void addEducation() {
     setState(() {
-      _educationList.add(
-          ExpansionEducation(
-            //section: _educationList[index],
-              idx: index,
-              onPressed: (int val) {
-                log('index: ${val}');
-                _educationList.remove(_educationList[val]);
-                // log('${_educationList.length}');
-                log('$index');
-                setState( () => _educationList = _educationList);
-              }
-          )
-      );
-
+      _educationList.add(EmptyContainer(key: Key(uuid.v4()),));
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
-
-
-
-
-    log('$indexId');
-
-
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -65,25 +66,32 @@ class _EducationState extends State<Education> {
         ),
         Flexible(
           fit: FlexFit.loose,
-          child:  ListView.builder(
+          child: ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: _educationList.length,
               itemBuilder: (context, index) {
                 log('$index');
                 return Padding(
-                  key: Key(uuid.v4()),
-                  padding: EdgeInsets.symmetric(vertical: 5.0),
-                  child: _educationList[index],
-                );
+                    key: Key(uuid.v4()),
+                    padding: EdgeInsets.symmetric(vertical: 5.0),
+                    child: ExpansionEducation(
+                        section: _educationList[index],
+                        onPressed: () {
+                          _educationList.remove(_educationList[index]);
+                          setState( () => _educationList = _educationList);
+                        }
+                    ));
               }),
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(8.0, 0.0, 28.0, 0.0),
           child: TextButton.icon(
             onPressed: () {
-              addEducation(indexId);
-              setState( () => indexId = indexId + 1);
+
+              setState(() {
+                _educationList.add(SizedBox.shrink());
+              });
             },
             icon: const Icon(Icons.add),
             label: const Text('Add Education'),
@@ -97,20 +105,20 @@ class _EducationState extends State<Education> {
 class ExpansionEducation extends StatefulWidget {
   const ExpansionEducation({
     Key? key,
-    //required this.section,
+    required this.section,
     required this.onPressed,
-    required this.idx,
+    //required this.idx,
   }) : super(key: key);
 
-  final Function(int) onPressed;
-  //final Widget section;
-  final int idx;
+  final VoidCallback onPressed;
+  final Widget section;
+  //final int idx;
 
   @override
   State<ExpansionEducation> createState() => _ExpansionEducationState();
 }
 
-class _ExpansionEducationState extends State<ExpansionEducation>with AutomaticKeepAliveClientMixin {
+class _ExpansionEducationState extends State<ExpansionEducation> with AutomaticKeepAliveClientMixin{
 
   @override
   bool get wantKeepAlive => true;
@@ -124,13 +132,21 @@ class _ExpansionEducationState extends State<ExpansionEducation>with AutomaticKe
 
   @override
   Widget build(BuildContext context) {
+
     String school = schoolController.text.trim();
     String degree = degreeController.text.trim();
     String course = courseController.text.trim();
 
-    void deleteEducation(int x) {
-      return (widget.onPressed(x));
-    }
+    // WidgetsBinding.instance!.addPostFrameCallback((_) async {
+    //   setState(() {
+    //     school = schoolController.text.trim();
+    //     degree = degreeController.text.trim();
+    //     course = courseController.text.trim();
+    //   });
+    // }
+    // );
+
+
 
     return ExpansionTile(
       title: (school == "") ? const Text('Untitled School') : Text(school),
@@ -277,11 +293,7 @@ class _ExpansionEducationState extends State<ExpansionEducation>with AutomaticKe
           height: 20.0,
         ),
         TextButton.icon(
-          onPressed: () {
-
-            deleteEducation(widget.idx);
-
-          },
+          onPressed: () => widget.onPressed(),
           icon: Icon(Icons.delete),
           label: Text("Delete this education"),
         )

@@ -5,6 +5,8 @@ import 'package:project/firebase_options.dart';
 import 'package:project/services/firebase_auth_methods.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:project/widgets/custom_button.dart';
+import 'package:flutter/cupertino.dart';
+import '../resume/resume_maker.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -110,6 +112,15 @@ class Home extends StatelessWidget {
                                   },
                                   text: 'Email not verified!   Verify Email',
                                 ),
+                              SizedBox(height: 100.0,),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.push(context, CupertinoPageRoute(
+                                      builder: (context) => Resume()
+                                  ));
+                                },
+                                child: Text("Create New Resume"),
+                              ),
                             ],
                           ),
                         ),

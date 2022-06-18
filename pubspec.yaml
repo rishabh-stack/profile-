@@ -40,6 +40,8 @@ dependencies:
   firebase_messaging: ^11.4.1
   provider: ^6.0.3
   google_sign_in: ^5.3.3
+  cloud_firestore: ^3.1.18
+  uuid: ^3.0.6
 
 dev_dependencies:
   flutter_test:

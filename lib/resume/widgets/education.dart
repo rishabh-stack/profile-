@@ -2,34 +2,10 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 //import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
-
-
+import '../pdf_model.dart';
+import 'package:intl/intl.dart';
 
 Uuid uuid = const Uuid();
-
-class EmptyContainer extends StatefulWidget {
-  const EmptyContainer({Key? key}) : super(key: key);
-
-  @override
-  State<EmptyContainer> createState() => _EmptyContainerState();
-}
-
-class _EmptyContainerState extends State<EmptyContainer> {
-  @override
-  Widget build(BuildContext context) {
-    return Container();
-  }
-}
-
-// class EmptyContainer extends StatelessWidget {
-//   const EmptyContainer({Key? key}) : super(key: key);
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container();
-//   }
-// }
-
 
 class Education extends StatefulWidget {
   const Education({Key? key}) : super(key: key);
@@ -39,19 +15,23 @@ class Education extends StatefulWidget {
 }
 
 class _EducationState extends State<Education> {
-  final _myKey = GlobalKey();
+  List<Educations> educationList = <Educations>[];
 
-  List<Widget> _educationList = <Widget>[];
-
-  void addEducation() {
+  void addEducationSection(Educations section) {
     setState(() {
-      _educationList.add(EmptyContainer(key: Key(uuid.v4()),));
+      educationList.add(section);
+    });
+  }
+
+  void removeEducationSection(Educations section) {
+    educationList.remove(section);
+    setState(() {
+      educationList;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -69,29 +49,26 @@ class _EducationState extends State<Education> {
           child: ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              itemCount: _educationList.length,
+              itemCount: educationList.length,
               itemBuilder: (context, index) {
                 log('$index');
                 return Padding(
-                    key: Key(uuid.v4()),
-                    padding: EdgeInsets.symmetric(vertical: 5.0),
-                    child: ExpansionEducation(
-                        section: _educationList[index],
-                        onPressed: () {
-                          _educationList.remove(_educationList[index]);
-                          setState( () => _educationList = _educationList);
-                        }
-                    ));
+                  key: Key(educationList[index].sectionId),
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: ExpansionEducation(
+                    section: educationList[index],
+                    onPressed: () {
+                      removeEducationSection(educationList[index]);
+                    },
+                  ),
+                );
               }),
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(8.0, 0.0, 28.0, 0.0),
           child: TextButton.icon(
             onPressed: () {
-
-              setState(() {
-                _educationList.add(SizedBox.shrink());
-              });
+              addEducationSection(Educations.createEmpty());
             },
             icon: const Icon(Icons.add),
             label: const Text('Add Education'),
@@ -111,15 +88,15 @@ class ExpansionEducation extends StatefulWidget {
   }) : super(key: key);
 
   final VoidCallback onPressed;
-  final Widget section;
+  final Educations section;
   //final int idx;
 
   @override
   State<ExpansionEducation> createState() => _ExpansionEducationState();
 }
 
-class _ExpansionEducationState extends State<ExpansionEducation> with AutomaticKeepAliveClientMixin{
-
+class _ExpansionEducationState extends State<ExpansionEducation>
+    with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
 
@@ -129,24 +106,58 @@ class _ExpansionEducationState extends State<ExpansionEducation> with AutomaticK
   TextEditingController startDateController = TextEditingController();
   TextEditingController endDateController = TextEditingController();
   TextEditingController cityController = TextEditingController();
+  TextEditingController gpaController = TextEditingController();
+  //text editing controller for text field
 
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    startDateController.text = ""; //set the initial value of text field
+    super.initState();
+  }
 
+  Widget build(BuildContext context) {
     String school = schoolController.text.trim();
     String degree = degreeController.text.trim();
     String course = courseController.text.trim();
+    String gpa = gpaController.text.trim();
+    String startDate = startDateController.text.trim();
+    String endDate = endDateController.text.trim();
 
-    // WidgetsBinding.instance!.addPostFrameCallback((_) async {
-    //   setState(() {
-    //     school = schoolController.text.trim();
-    //     degree = degreeController.text.trim();
-    //     course = courseController.text.trim();
-    //   });
-    // }
-    // );
+    schoolController.text = widget.section.universityName;
+    schoolController.selection = TextSelection(
+        baseOffset: (widget.section.universityName).length,
+        extentOffset: (widget.section.universityName).length);
+    school = widget.section.universityName;
 
+    courseController.text = widget.section.courseTaken;
+    courseController.selection = TextSelection(
+        baseOffset: (widget.section.courseTaken).length,
+        extentOffset: (widget.section.courseTaken).length);
+    course = widget.section.courseTaken;
 
+    gpaController.text = widget.section.gpa;
+    gpaController.selection = TextSelection(
+        baseOffset: (widget.section.gpa).length,
+        extentOffset: (widget.section.gpa).length);
+    gpa = widget.section.gpa;
+
+    degreeController.text = widget.section.degree;
+    degreeController.selection = TextSelection(
+        baseOffset: (widget.section.degree).length,
+        extentOffset: (widget.section.degree).length);
+    degree = widget.section.degree;
+
+    startDateController.text = widget.section.startDate;
+    startDateController.selection = TextSelection(
+        baseOffset: (widget.section.startDate).length,
+        extentOffset: (widget.section.startDate).length);
+    startDate = widget.section.startDate;
+
+    endDateController.text = widget.section.endDate;
+    endDateController.selection = TextSelection(
+        baseOffset: (widget.section.endDate).length,
+        extentOffset: (widget.section.endDate).length);
+    endDate = widget.section.endDate;
 
     return ExpansionTile(
       title: (school == "") ? const Text('Untitled School') : Text(school),
@@ -165,6 +176,9 @@ class _ExpansionEducationState extends State<ExpansionEducation> with AutomaticK
                     controller: schoolController,
                     onChanged: (txt) {
                       setState(() => school = txt);
+                      setState(() {
+                        widget.section.universityName = txt;
+                      });
                     },
                     decoration: const InputDecoration(
                       labelText: "School",
@@ -183,6 +197,9 @@ class _ExpansionEducationState extends State<ExpansionEducation> with AutomaticK
                     controller: degreeController,
                     onChanged: (txt) {
                       setState(() => degree = txt);
+                      setState(() {
+                        widget.section.degree = txt;
+                      });
                     },
                     decoration: const InputDecoration(
                       labelText: "Degree",
@@ -205,6 +222,9 @@ class _ExpansionEducationState extends State<ExpansionEducation> with AutomaticK
                     controller: courseController,
                     onChanged: (txt) {
                       setState(() => course = txt);
+                      setState(() {
+                        widget.section.courseTaken = txt;
+                      });
                     },
                     decoration: const InputDecoration(
                       labelText: 'Course',
@@ -220,7 +240,13 @@ class _ExpansionEducationState extends State<ExpansionEducation> with AutomaticK
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   child: TextField(
-                    //controller: nameController,
+                    controller: gpaController,
+                    onChanged: (txt) {
+                      setState(() => gpa = txt);
+                      setState(() {
+                        widget.section.gpa = txt;
+                      });
+                    },
                     decoration: InputDecoration(
                       labelText: "GPA",
                       border: OutlineInputBorder(),
@@ -245,7 +271,22 @@ class _ExpansionEducationState extends State<ExpansionEducation> with AutomaticK
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
                         child: TextField(
-                          //controller: nameController,
+                          controller: startDateController,
+                          onTap: () async {
+                            final DateTime? picked = await showDatePicker(
+                                context: context,
+                                initialDate: DateTime.now(),
+                                firstDate: DateTime(2015, 8),
+                                lastDate: DateTime(2101));
+                            if (picked != null) {
+                              String formattedDate =
+                                  DateFormat('yyyy-MM-dd').format(picked);
+                              setState(() {
+                                widget.section.startDate = formattedDate;
+                                startDate = formattedDate;
+                              });
+                            }
+                          },
                           decoration: InputDecoration(
                             labelText: "Start Date",
                             border: OutlineInputBorder(),
@@ -260,7 +301,22 @@ class _ExpansionEducationState extends State<ExpansionEducation> with AutomaticK
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
                         child: TextField(
-                          //controller: nameController,
+                          controller: endDateController,
+                          onTap: () async {
+                            final DateTime? picked = await showDatePicker(
+                                context: context,
+                                initialDate: DateTime.now(),
+                                firstDate: DateTime(2015, 8),
+                                lastDate: DateTime(2101));
+                            if (picked != null) {
+                              String formattedDate =
+                                  DateFormat('yyyy-MM-dd').format(picked);
+                              setState(() {
+                                widget.section.endDate = formattedDate;
+                                endDate = formattedDate;
+                              });
+                            }
+                          },
                           decoration: InputDecoration(
                             labelText: "End Date",
                             border: OutlineInputBorder(),

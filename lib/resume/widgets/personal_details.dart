@@ -1,6 +1,8 @@
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:project/services/firebase_auth_methods.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 
 class PersonalDetails extends StatefulWidget {
   const PersonalDetails({Key? key}) : super(key: key);
@@ -10,36 +12,38 @@ class PersonalDetails extends StatefulWidget {
 }
 
 class _PersonalDetailsState extends State<PersonalDetails> {
-
   TextEditingController nameController = TextEditingController();
+  TextEditingController lastnameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
+  TextEditingController phoneController = TextEditingController();
 
-
-
-  void saveBio () async{
-    String name = nameController.text.trim();
+  void saveBio() async {
+    final user = FirebaseAuthMethods(FirebaseAuth.instance).user;
+    String name =
+        nameController.text.trim() + ' ' + lastnameController.text.trim();
     String email = emailController.text.trim();
+    String phone = phoneController.text.trim();
 
-    nameController.clear();
-    emailController.clear();
-
-    if(name != "" && email !=""){
+    if (name != "" && email != "") {
       Map<String, dynamic> newUserBio = {
-        "name" : name,
-        "email" : email,
+        "name": name,
+        "email": email,
+        "phone": phone
       };
-      await FirebaseFirestore.instance.collection("bio").add(newUserBio);
+      await FirebaseFirestore.instance
+          .collection("users")
+          .doc(user.email)
+          .set(newUserBio);
       final snackBar = SnackBar(
         behavior: SnackBarBehavior.floating,
-        content: Text('User created.'),
+        content: Text('Data Added.'),
         action: SnackBarAction(
           label: 'Okay',
           onPressed: () {},
         ),
       );
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
-    }
-    else{
+    } else {
       final snackBar = SnackBar(
         behavior: SnackBarBehavior.floating,
         content: Text('Please fill all the required fields.'),
@@ -52,21 +56,19 @@ class _PersonalDetailsState extends State<PersonalDetails> {
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text(
-            "Basic Details",
+        Text("Basic Details",
             style: TextStyle(
               fontSize: 20.0,
               fontWeight: FontWeight.bold,
-            )
+            )),
+        SizedBox(
+          height: 20.0,
         ),
-        SizedBox(height: 20.0,),
         Row(
           children: <Widget>[
             Expanded(
@@ -78,10 +80,12 @@ class _PersonalDetailsState extends State<PersonalDetails> {
                 ),
               ),
             ),
-            SizedBox(width: 10.0,),
+            SizedBox(
+              width: 10.0,
+            ),
             Expanded(
               child: TextField(
-                controller: nameController,
+                controller: lastnameController,
                 decoration: InputDecoration(
                   labelText: "Last Name",
                   border: OutlineInputBorder(),
@@ -90,7 +94,9 @@ class _PersonalDetailsState extends State<PersonalDetails> {
             ),
           ],
         ),
-        SizedBox(height: 10.0,),
+        SizedBox(
+          height: 10.0,
+        ),
         TextField(
           controller: emailController,
           decoration: InputDecoration(
@@ -98,16 +104,26 @@ class _PersonalDetailsState extends State<PersonalDetails> {
             border: OutlineInputBorder(),
           ),
         ),
-        SizedBox(height: 20.0,),
+        SizedBox(
+          height: 20.0,
+        ),
         TextField(
+          controller: phoneController,
+          keyboardType: TextInputType.number,
           decoration: InputDecoration(
             labelText: "Phone Number",
             border: OutlineInputBorder(),
           ),
         ),
-        SizedBox(height: 10.0,),
+        SizedBox(
+          height: 10.0,
+        ),
+        CupertinoButton(
+            child: Text("Save Details"),
+            onPressed: () {
+              saveBio();
+            }),
       ],
     );
   }
 }
-

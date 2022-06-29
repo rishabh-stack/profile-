@@ -35,7 +35,7 @@ class Home extends StatelessWidget {
           onPressed: () {},
           icon: Icon(Icons.home),
         ),
-        title: Text('Hello $email'),
+        title: Text('Hello $name'),
         centerTitle: true,
         backgroundColor: Colors.indigoAccent,
         actions: <Widget>[
@@ -84,6 +84,7 @@ class Home extends StatelessWidget {
               child: Column(
                 children: <Widget>[
                   buildTop(),
+                  UserInformation(user),
                   buildContent(),
                 ],
               ),
@@ -112,12 +113,15 @@ class Home extends StatelessWidget {
                                   },
                                   text: 'Email not verified!   Verify Email',
                                 ),
-                              SizedBox(height: 100.0,),
+                              SizedBox(
+                                height: 100.0,
+                              ),
                               TextButton(
                                 onPressed: () {
-                                  Navigator.push(context, CupertinoPageRoute(
-                                      builder: (context) => Resume()
-                                  ));
+                                  Navigator.push(
+                                      context,
+                                      CupertinoPageRoute(
+                                          builder: (context) => Resume()));
                                 },
                                 child: Text("Create New Resume"),
                               ),
@@ -178,18 +182,6 @@ class Home extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
           const SizedBox(height: 8),
-          Text('Aamtspn',
-              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 8),
-          Text(
-            'Designation',
-            style: TextStyle(fontSize: 20, color: Colors.black38),
-          ),
-          const SizedBox(height: 8),
-          Text('gmail'),
-          const SizedBox(height: 8),
-          Text('Mobile'),
-          const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
@@ -216,4 +208,60 @@ class Home extends StatelessWidget {
               child: Icon(icon, size: 32),
             ),
           )));
+}
+
+class UserInformation extends Home {
+  const UserInformation(
+    this.user, {
+    Key? key,
+  }) : super(key: key);
+
+  final User user;
+
+  @override
+  Widget build(BuildContext context) {
+    String? profilePic = user.photoURL;
+    bool isPicNull = profilePic == null;
+    String? email = user.email;
+    String? name = user.displayName;
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Container(
+          height: 50,
+          width: 50,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: NetworkImage(profilePic!),
+              fit: BoxFit.contain,
+            ),
+          ),
+          child: isPicNull == true
+              ? Center(
+                  child: Text(
+                    email!.substring(0, 1).toUpperCase(),
+                  ),
+                )
+              : null,
+        ),
+        const SizedBox(
+          width: 16,
+        ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              name!,
+            ),
+            Text(
+              email!,
+            )
+          ],
+        ),
+        const Spacer(),
+      ],
+    );
+  }
 }

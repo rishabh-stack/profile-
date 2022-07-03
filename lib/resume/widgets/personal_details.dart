@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:project/services/firebase_auth_methods.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
+import 'dart:async';
+import 'package:localstorage/localstorage.dart';
 
 class PersonalDetails extends StatefulWidget {
   const PersonalDetails({Key? key}) : super(key: key);
@@ -16,44 +14,31 @@ class _PersonalDetailsState extends State<PersonalDetails> {
   TextEditingController lastnameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
+  TextEditingController summaryController = TextEditingController();
+  late Timer timer;
+  final LocalStorage storage = new LocalStorage('aamtspn');
 
-  void saveBio() async {
-    final user = FirebaseAuthMethods(FirebaseAuth.instance).user;
-    String name =
-        nameController.text.trim() + ' ' + lastnameController.text.trim();
+  void updateResume() async {
+    String name = nameController.text.trim();
+    String lastname = lastnameController.text.trim();
     String email = emailController.text.trim();
     String phone = phoneController.text.trim();
+    Map<String, dynamic> personal = {
+      "name": name,
+      "lastname": lastname,
+      "email": email,
+      "phone": phone,
+    };
+    storage.setItem('personaldetail', personal);
+  }
 
-    if (name != "" && email != "") {
-      Map<String, dynamic> newUserBio = {
-        "name": name,
-        "email": email,
-        "phone": phone
-      };
-      await FirebaseFirestore.instance
-          .collection("users")
-          .doc(user.email)
-          .set(newUserBio);
-      final snackBar = SnackBar(
-        behavior: SnackBarBehavior.floating,
-        content: Text('Data Added.'),
-        action: SnackBarAction(
-          label: 'Okay',
-          onPressed: () {},
-        ),
-      );
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-    } else {
-      final snackBar = SnackBar(
-        behavior: SnackBarBehavior.floating,
-        content: Text('Please fill all the required fields.'),
-        action: SnackBarAction(
-          label: 'Okay',
-          onPressed: () {},
-        ),
-      );
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-    }
+  @override
+  void initState() {
+    super.initState();
+
+    timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
+      updateResume();
+    });
   }
 
   @override
@@ -115,14 +100,6 @@ class _PersonalDetailsState extends State<PersonalDetails> {
             border: OutlineInputBorder(),
           ),
         ),
-        SizedBox(
-          height: 10.0,
-        ),
-        CupertinoButton(
-            child: Text("Save Details"),
-            onPressed: () {
-              saveBio();
-            }),
       ],
     );
   }

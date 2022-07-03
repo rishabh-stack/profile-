@@ -2,8 +2,10 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 //import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
+import 'package:localstorage/localstorage.dart';
 import '../pdf_model.dart';
 import 'package:intl/intl.dart';
+import 'dart:async';
 
 Uuid uuid = const Uuid();
 
@@ -16,6 +18,19 @@ class Experience extends StatefulWidget {
 
 class _ExperienceState extends State<Experience> {
   List<Experiences> experienceList = <Experiences>[];
+  late Timer timer;
+  void updateResume() async {
+    LocalStorage('aamtspn').setItem('experience', experienceList);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
+      updateResume();
+    });
+  }
 
   void addExperienceSection(Experiences section) {
     setState(() {

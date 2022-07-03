@@ -1,9 +1,65 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/material.dart';
 //import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
+import 'dart:convert';
 
 Uuid uuid = const Uuid();
+
+// class Profile {
+//   String name;
+//   String lastname;
+//   String email;
+//   String phone;
+
+//   Profile({
+//     required this.name,
+//     required this.lastname,
+//     required this.email,
+//     required this.phone,
+//   });
+//   factory Profile.fromJson(Map<String, dynamic> json) => new Profile(
+//         name: json["name"],
+//         lastname: json["lastname"],
+//         email: json["email"],
+//         phone: json["phone"],
+//       );
+
+//   Map<String, dynamic> toJson() => {
+//         "name": name,
+//         "designation": lastname,
+//         "email": email,
+//         "phone": phone,
+//       };
+// }
+
+class Links {
+  String sectionId;
+  String linkname;
+  String linkurl;
+
+  Links({
+    required this.sectionId,
+    required this.linkname,
+    required this.linkurl,
+  });
+
+  factory Links.createEmpty() {
+    return Links(sectionId: uuid.v4(), linkname: '', linkurl: "");
+  }
+
+  factory Links.fromJson(Map<String, dynamic> json) => new Links(
+        sectionId: json["sectionId"],
+        linkname: json["linkname"],
+        linkurl: json["linkurl"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "linkname": linkname,
+        "linkurl": linkurl,
+      };
+}
 
 class Educations {
   String sectionId;
@@ -129,36 +185,48 @@ class Skills {
       };
 }
 
-class Resume {
+class Pdf {
   List<Educations> educations;
   List<Experiences> experiences;
   List<Skills> skills;
-  Resume({
+  List<Links> links;
+  Map<String, dynamic> personaldetail;
+  Pdf({
+    required this.personaldetail,
+    required this.links,
     required this.educations,
     required this.experiences,
     required this.skills,
   });
 
-  factory Resume.fromJson(Map<String, dynamic> json) {
+  factory Pdf.fromJson(Map<String, dynamic> json) {
     var experiencesList = json['experiences'] as List;
     var educationsList = json['educations'] as List;
     var skillsList = json['skills'] as List;
+    var linksList = json['links'] as List;
     List<Educations> educations =
         educationsList.map((i) => Educations.fromJson(i)).toList();
     List<Experiences> experiences =
         experiencesList.map((i) => Experiences.fromJson(i)).toList();
     List<Skills> skills = skillsList.map((i) => Skills.fromJson(i)).toList();
+    List<Links> links = linksList.map((i) => Links.fromJson(i)).toList();
 
-    return Resume(
+    return Pdf(
+      personaldetail: json["personaldetails"],
+      links: links,
       educations: educations,
       experiences: experiences,
       skills: skills,
     );
   }
 
-  Map<String, dynamic> toJson() => {
-        "educations": educations,
-        "experiences": experiences,
-        "skills": experiences,
-      };
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data["personaldetails"] = personaldetail;
+    data["links"] = jsonEncode(links);
+    data["educations"] = jsonEncode(educations);
+    data["experiences"] = jsonEncode(experiences);
+    data["skills"] = jsonEncode(skills);
+    return data;
+  }
 }

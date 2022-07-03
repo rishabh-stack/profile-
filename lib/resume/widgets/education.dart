@@ -1,9 +1,11 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:localstorage/localstorage.dart';
 //import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 import '../pdf_model.dart';
 import 'package:intl/intl.dart';
+import 'dart:async';
 
 Uuid uuid = const Uuid();
 
@@ -16,6 +18,7 @@ class Education extends StatefulWidget {
 
 class _EducationState extends State<Education> {
   List<Educations> educationList = <Educations>[];
+  late Timer timer;
 
   void addEducationSection(Educations section) {
     setState(() {
@@ -27,6 +30,19 @@ class _EducationState extends State<Education> {
     educationList.remove(section);
     setState(() {
       educationList;
+    });
+  }
+
+  void updateResume() async {
+    LocalStorage('aamtspn').setItem('education', educationList);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
+      updateResume();
     });
   }
 

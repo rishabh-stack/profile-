@@ -8,19 +8,19 @@ import 'dart:async';
 
 Uuid uuid = const Uuid();
 
-class Skill extends StatefulWidget {
-  const Skill({Key? key}) : super(key: key);
+class Link extends StatefulWidget {
+  const Link({Key? key}) : super(key: key);
 
   @override
-  State<Skill> createState() => _SkillState();
+  State<Link> createState() => _LinkState();
 }
 
-class _SkillState extends State<Skill> {
-  List<Skills> SkillList = <Skills>[];
+class _LinkState extends State<Link> {
+  List<Links> linkList = <Links>[];
   late Timer timer;
 
   void updateResume() async {
-    LocalStorage('aamtspn').setItem('skills', SkillList);
+    LocalStorage('aamtspn').setItem('links', linkList);
   }
 
   @override
@@ -32,16 +32,16 @@ class _SkillState extends State<Skill> {
     });
   }
 
-  void addSkillSection(Skills section) {
+  void addLinkSection(Links section) {
     setState(() {
-      SkillList.add(section);
+      linkList.add(section);
     });
   }
 
-  void removeSkillSection(Skills section) {
-    SkillList.remove(section);
+  void removeLinkSection(Links section) {
+    linkList.remove(section);
     setState(() {
-      SkillList;
+      linkList;
     });
   }
 
@@ -51,7 +51,7 @@ class _SkillState extends State<Skill> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        const Text("Your Skills",
+        const Text("Your Links",
             style: TextStyle(
               fontSize: 20.0,
               fontWeight: FontWeight.bold,
@@ -64,16 +64,16 @@ class _SkillState extends State<Skill> {
           child: ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              itemCount: SkillList.length,
+              itemCount: linkList.length,
               itemBuilder: (context, index) {
                 log('$index');
                 return Padding(
-                  key: Key(SkillList[index].sectionId),
+                  key: Key(linkList[index].sectionId),
                   padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: ExpansionSkill(
-                    section: SkillList[index],
+                  child: ExpansionLink(
+                    section: linkList[index],
                     onPressed: () {
-                      removeSkillSection(SkillList[index]);
+                      removeLinkSection(linkList[index]);
                     },
                   ),
                 );
@@ -83,10 +83,10 @@ class _SkillState extends State<Skill> {
           padding: const EdgeInsets.fromLTRB(8.0, 0.0, 28.0, 0.0),
           child: TextButton.icon(
             onPressed: () {
-              addSkillSection(Skills.createEmpty());
+              addLinkSection(Links.createEmpty());
             },
             icon: const Icon(Icons.add),
-            label: const Text('Add Skill'),
+            label: const Text('Add Link'),
           ),
         )
       ],
@@ -94,8 +94,8 @@ class _SkillState extends State<Skill> {
   }
 }
 
-class ExpansionSkill extends StatefulWidget {
-  const ExpansionSkill({
+class ExpansionLink extends StatefulWidget {
+  const ExpansionLink({
     Key? key,
     required this.section,
     required this.onPressed,
@@ -103,38 +103,46 @@ class ExpansionSkill extends StatefulWidget {
   }) : super(key: key);
 
   final VoidCallback onPressed;
-  final Skills section;
+  final Links section;
   //final int idx;
 
   @override
-  State<ExpansionSkill> createState() => _ExpansionSkillState();
+  State<ExpansionLink> createState() => _ExpansionLinkState();
 }
 
-class _ExpansionSkillState extends State<ExpansionSkill>
+class _ExpansionLinkState extends State<ExpansionLink>
     with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
 
-  TextEditingController skillController = TextEditingController();
+  TextEditingController LinknameController = TextEditingController();
+  TextEditingController LinkurlController = TextEditingController();
   //text editing controller for text field
 
   @override
   void initState() {
-    skillController.text = ""; //set the initial value of text field
+    LinknameController.text = "";
+    LinkurlController.text = ""; //set the initial value of text field
     super.initState();
   }
 
   Widget build(BuildContext context) {
-    String skill = skillController.text.trim();
+    String Linkname = LinknameController.text.trim();
+    String Linkurl = LinknameController.text.trim();
 
-    skillController.text = widget.section.skillname;
-    skillController.selection = TextSelection(
-        baseOffset: (widget.section.skillname).length,
-        extentOffset: (widget.section.skillname).length);
-    skill = widget.section.skillname;
+    LinknameController.text = widget.section.linkname;
+    LinknameController.selection = TextSelection(
+        baseOffset: (widget.section.linkname).length,
+        extentOffset: (widget.section.linkname).length);
+    Linkname = widget.section.linkname;
 
+    LinkurlController.text = widget.section.linkurl;
+    LinkurlController.selection = TextSelection(
+        baseOffset: (widget.section.linkurl).length,
+        extentOffset: (widget.section.linkurl).length);
+    Linkurl = widget.section.linkurl;
     return ExpansionTile(
-      title: (skill == "") ? const Text('Test') : Text(skill),
+      title: (Linkname == "") ? const Text('Test') : Text(Linkname),
       children: <Widget>[
         Padding(
           padding: const EdgeInsets.fromLTRB(0.0, 20.0, 20.0, 0.0),
@@ -144,15 +152,15 @@ class _ExpansionSkillState extends State<ExpansionSkill>
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   child: TextField(
-                    controller: skillController,
+                    controller: LinknameController,
                     onChanged: (txt) {
-                      setState(() => skill = txt);
+                      setState(() => Linkname = txt);
                       setState(() {
-                        widget.section.skillname = txt;
+                        widget.section.linkname = txt;
                       });
                     },
                     decoration: const InputDecoration(
-                      labelText: "Skill Name",
+                      labelText: "Link Name",
                       border: OutlineInputBorder(),
                     ),
                   ),
@@ -160,6 +168,24 @@ class _ExpansionSkillState extends State<ExpansionSkill>
               ),
               const SizedBox(
                 width: 5.0,
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: TextField(
+                    controller: LinkurlController,
+                    onChanged: (txt) {
+                      setState(() => Linkurl = txt);
+                      setState(() {
+                        widget.section.linkurl = txt;
+                      });
+                    },
+                    decoration: InputDecoration(
+                      labelText: "Link URL",
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
@@ -170,7 +196,7 @@ class _ExpansionSkillState extends State<ExpansionSkill>
         TextButton.icon(
           onPressed: () => widget.onPressed(),
           icon: Icon(Icons.delete),
-          label: Text("Delete this Skill"),
+          label: Text("Delete this Link"),
         )
       ],
     );

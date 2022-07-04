@@ -7,6 +7,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:project/widgets/custom_button.dart';
 import 'package:flutter/cupertino.dart';
 import '../resume/resume_maker.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../resume/pdf_model.dart';
+import 'dart:convert';
+import './user_profile.dart';
+import '../resume/resume_preview.dart';
+import '../resume/make_pdf.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,10 +24,57 @@ void main() async {
   ));
 }
 
-class Home extends StatelessWidget {
+class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
+
+  @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
   final double coverHeight = 280;
+
   final double profileHeight = 144;
+
+  List<dynamic> educationList = <dynamic>[];
+
+  List<dynamic> experienceList = <dynamic>[];
+
+  List<dynamic> skillsList = <dynamic>[];
+
+  List<dynamic> linksList = <dynamic>[];
+
+  Map<String, dynamic> ans = new Map<String, dynamic>();
+
+  void saveBio() async {
+    final user = FirebaseAuthMethods(FirebaseAuth.instance).user;
+    final docRef =
+        FirebaseFirestore.instance.collection("users").doc(user.email);
+    docRef.get().then(
+      (DocumentSnapshot doc) {
+        final data = doc.data() as Map<String, dynamic>;
+
+        setState(() {
+          ans = data;
+          educationList = (jsonDecode(data['educations']));
+          experienceList = (jsonDecode(data['experiences']));
+          skillsList = (jsonDecode(data['skills']));
+          linksList = (jsonDecode(data['links']));
+          WidgetsFlutterBinding.ensureInitialized();
+        });
+      },
+      onError: (e) => print("Error getting document: $e"),
+    );
+  }
+
+  // WidgetsBinding.instance.addPostFrameCallback((_) => saveBio(context));
+
+  @override
+  void initState() {
+    super.initState();
+    saveBio();
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuthMethods(FirebaseAuth.instance).user;
@@ -84,54 +137,72 @@ class Home extends StatelessWidget {
               child: Column(
                 children: <Widget>[
                   buildTop(),
-                  UserInformation(user),
+                  UserInformation(user: user),
                   buildContent(),
                 ],
               ),
             ),
-            Container(
-              width: MediaQuery.of(context).size.width * 0.65,
-              //height: MediaQuery.of(context).size.height*0.50,
-              color: Colors.white,
-              child: Column(
-                children: <Widget>[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: <Widget>[
-                      Container(
-                        width: MediaQuery.of(context).size.width * 0.25,
-                        child: Padding(
-                          padding: EdgeInsets.all(20.0),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              if (!user.emailVerified && !user.isAnonymous)
-                                CustomButton(
-                                  onTap: () {
-                                    FirebaseAuthMethods(FirebaseAuth.instance)
-                                        .sendEmailVerification(context);
-                                  },
-                                  text: 'Email not verified!   Verify Email',
+            SingleChildScrollView(
+              child: Container(
+                width: MediaQuery.of(context).size.width * 0.65,
+                //height: MediaQuery.of(context).size.height*0.50,
+                color: Colors.white,
+                child: Column(
+                  children: <Widget>[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: <Widget>[
+                        Container(
+                          width: MediaQuery.of(context).size.width * 0.25,
+                          child: Padding(
+                            padding: EdgeInsets.all(20.0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                if (!user.emailVerified && !user.isAnonymous)
+                                  CustomButton(
+                                    onTap: () {
+                                      FirebaseAuthMethods(FirebaseAuth.instance)
+                                          .sendEmailVerification(context);
+                                    },
+                                    text: 'Email not verified!   Verify Email',
+                                  ),
+                                SizedBox(
+                                  height: 100.0,
                                 ),
-                              SizedBox(
-                                height: 100.0,
-                              ),
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                      context,
-                                      CupertinoPageRoute(
-                                          builder: (context) => Resume()));
-                                },
-                                child: Text("Create New Resume"),
-                              ),
-                            ],
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                        context,
+                                        CupertinoPageRoute(
+                                            builder: (context) => Resume()));
+                                  },
+                                  child: Text("Create New Resume"),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                        context,
+                                        CupertinoPageRoute(
+                                            builder: (context) =>
+                                                MyHomePage()));
+                                  },
+                                  child: Text("View Resume"),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        UserProfile(),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -144,23 +215,61 @@ class Home extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget buildCoverImage() => Container(
-      color: Colors.grey,
-      child: Image.network(
-        'https://media.istockphoto.com/photos/dark-blue-grunge-background-picture-id170958625?b=1&k=20&m=170958625&s=170667a&w=0&h=xG_DER6VK7CEXuPh0TUQu7H_xqlF_LZ0uNgumm40ylw=',
-        width: double.infinity,
-        height: coverHeight,
-        fit: BoxFit.cover,
-      ));
+final double coverHeight = 280;
 
-  Widget buildProfileImage() => CircleAvatar(
-      radius: profileHeight / 2,
-      backgroundColor: Colors.grey.shade800,
-      backgroundImage: NetworkImage(
-          'https://media-exp2.licdn.com/dms/image/C560BAQH_1D47hfHBCQ/company-logo_200_200/0/1622694492980?e=1663200000&v=beta&t=Wry9l_63x5JajM2ZflulafSYvuhhKtqeYlM03RDwG60'));
+final double profileHeight = 144;
 
-  Widget buildTop() {
+class buildCoverImage extends StatefulWidget {
+  const buildCoverImage({Key? key}) : super(key: key);
+
+  @override
+  State<buildCoverImage> createState() => _buildCoverImageState();
+}
+
+class _buildCoverImageState extends State<buildCoverImage> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        color: Colors.grey,
+        child: Image.network(
+          'https://media.istockphoto.com/photos/dark-blue-grunge-background-picture-id170958625?b=1&k=20&m=170958625&s=170667a&w=0&h=xG_DER6VK7CEXuPh0TUQu7H_xqlF_LZ0uNgumm40ylw=',
+          width: double.infinity,
+          height: coverHeight,
+          fit: BoxFit.cover,
+        ));
+  }
+}
+
+class buildProfileImage extends StatefulWidget {
+  const buildProfileImage({Key? key}) : super(key: key);
+
+  @override
+  State<buildProfileImage> createState() => _buildProfileImageState();
+}
+
+class _buildProfileImageState extends State<buildProfileImage> {
+  @override
+  Widget build(BuildContext context) {
+    return CircleAvatar(
+        radius: profileHeight / 2,
+        backgroundColor: Colors.grey.shade800,
+        backgroundImage: NetworkImage(
+            'https://media-exp2.licdn.com/dms/image/C560BAQH_1D47hfHBCQ/company-logo_200_200/0/1622694492980?e=1663200000&v=beta&t=Wry9l_63x5JajM2ZflulafSYvuhhKtqeYlM03RDwG60'));
+  }
+}
+
+class buildTop extends StatefulWidget {
+  const buildTop({Key? key}) : super(key: key);
+
+  @override
+  State<buildTop> createState() => _buildTopState();
+}
+
+class _buildTopState extends State<buildTop> {
+  @override
+  Widget build(BuildContext context) {
     final bottom = profileHeight / 2;
     final top = coverHeight - profileHeight / 2;
     return Stack(
@@ -175,8 +284,18 @@ class Home extends StatelessWidget {
       ],
     );
   }
+}
 
-  Widget buildContent() {
+class buildContent extends StatefulWidget {
+  const buildContent({Key? key}) : super(key: key);
+
+  @override
+  State<buildContent> createState() => _buildContentState();
+}
+
+class _buildContentState extends State<buildContent> {
+  @override
+  Widget build(BuildContext context) {
     return (Expanded(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -185,45 +304,59 @@ class Home extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
-              buildIcon(FontAwesomeIcons.facebook),
-              buildIcon(FontAwesomeIcons.instagram),
-              buildIcon(FontAwesomeIcons.twitter),
-              buildIcon(FontAwesomeIcons.linkedin),
+              buildIcon(icon: FontAwesomeIcons.facebook),
+              buildIcon(icon: FontAwesomeIcons.instagram),
+              buildIcon(icon: FontAwesomeIcons.twitter),
+              buildIcon(icon: FontAwesomeIcons.linkedin),
             ],
           )
         ],
       ),
     ));
   }
-
-  Widget buildIcon(IconData icon) => CircleAvatar(
-      radius: 25,
-      child: Material(
-          shape: CircleBorder(),
-          clipBehavior: Clip.hardEdge,
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: () {},
-            child: Center(
-              child: Icon(icon, size: 32),
-            ),
-          )));
 }
 
-class UserInformation extends Home {
-  const UserInformation(
-    this.user, {
-    Key? key,
-  }) : super(key: key);
-
-  final User user;
+class buildIcon extends StatefulWidget {
+  final IconData icon;
+  buildIcon({Key? key, required this.icon}) : super(key: key);
 
   @override
+  State<buildIcon> createState() => _buildIconState();
+}
+
+class _buildIconState extends State<buildIcon> {
+  @override
   Widget build(BuildContext context) {
-    String? profilePic = user.photoURL;
+    return CircleAvatar(
+        radius: 25,
+        child: Material(
+            shape: CircleBorder(),
+            clipBehavior: Clip.hardEdge,
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () {},
+              child: Center(
+                child: Icon(widget.icon, size: 32),
+              ),
+            )));
+  }
+}
+
+class UserInformation extends StatefulWidget {
+  final User user;
+  const UserInformation({Key? key, required this.user}) : super(key: key);
+
+  @override
+  State<UserInformation> createState() => _UserInformationState();
+}
+
+class _UserInformationState extends State<UserInformation> {
+  @override
+  Widget build(BuildContext context) {
+    String? profilePic = widget.user.photoURL;
     bool isPicNull = profilePic == null;
-    String? email = user.email;
-    String? name = user.displayName;
+    String? email = widget.user.email;
+    String? name = widget.user.displayName;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -233,11 +366,11 @@ class UserInformation extends Home {
           height: 50,
           width: 50,
           decoration: BoxDecoration(
-            image: DecorationImage(
-              image: NetworkImage(profilePic!),
-              fit: BoxFit.contain,
-            ),
-          ),
+              // image: DecorationImage(
+              //   image: NetworkImage(profilePic!),
+              //   fit: BoxFit.contain,
+              // ),
+              ),
           child: isPicNull == true
               ? Center(
                   child: Text(

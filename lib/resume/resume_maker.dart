@@ -11,6 +11,7 @@ import 'package:project/services/firebase_auth_methods.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:localstorage/localstorage.dart';
 import 'pdf_model.dart';
+import 'package:project/widgets/custom_button.dart';
 
 class Resume extends StatefulWidget {
   const Resume({Key? key}) : super(key: key);
@@ -23,11 +24,11 @@ class _ResumeState extends State<Resume> {
   Future saveBio() async {
     final user = FirebaseAuthMethods(FirebaseAuth.instance).user;
     Pdf resume = Pdf(
-      personaldetail: LocalStorage('aamtspn').getItem('personaldetail'),
-      links: LocalStorage('aamtspn').getItem('links'),
-      educations: LocalStorage('aamtspn').getItem('education'),
-      experiences: LocalStorage('aamtspn').getItem('experience'),
-      skills: LocalStorage('aamtspn').getItem('skills'),
+      personaldetail: LocalStorage('${user.email}').getItem('personaldetail'),
+      links: LocalStorage('${user.email}').getItem('links'),
+      educations: LocalStorage('${user.email}').getItem('education'),
+      experiences: LocalStorage('${user.email}').getItem('experience'),
+      skills: LocalStorage('${user.email}').getItem('skills'),
     );
     await FirebaseFirestore.instance
         .collection("users")
@@ -65,6 +66,9 @@ class _ResumeState extends State<Resume> {
                       height: 20.0,
                     ),
                     Link(),
+                    const SizedBox(
+                      height: 20.0,
+                    ),
                     Education(),
                     const SizedBox(
                       height: 20.0,
@@ -74,11 +78,15 @@ class _ResumeState extends State<Resume> {
                       height: 20.0,
                     ),
                     Skill(),
-                    CupertinoButton(
-                        child: Text("Save Details"),
-                        onPressed: () {
-                          saveBio();
-                        }),
+                    const SizedBox(
+                      height: 20.0,
+                    ),
+                    CustomButton(
+                      onTap: () {
+                        saveBio();
+                      },
+                      text: 'Save Details',
+                    ),
                   ],
                 ),
               ),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:localstorage/localstorage.dart';
+import 'package:project/services/firebase_auth_methods.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class PersonalDetails extends StatefulWidget {
   const PersonalDetails({Key? key}) : super(key: key);
@@ -16,26 +18,36 @@ class _PersonalDetailsState extends State<PersonalDetails> {
   TextEditingController phoneController = TextEditingController();
   TextEditingController summaryController = TextEditingController();
   late Timer timer;
-  final LocalStorage storage = new LocalStorage('aamtspn');
+  final user = FirebaseAuthMethods(FirebaseAuth.instance).user;
+  void fill() async {
+    var per =
+        await LocalStorage('${user.email}database').getItem('personaldetail');
+    if (per != null) {
+      nameController.text = per['name'];
+      lastnameController.text = per['lastname'];
+      emailController.text = per['email'];
+      phoneController.text = per['phone'];
+    }
+  }
 
   void updateResume() async {
-    String name = nameController.text.trim();
-    String lastname = lastnameController.text.trim();
-    String email = emailController.text.trim();
-    String phone = phoneController.text.trim();
+    String name = nameController.text;
+    String lastname = lastnameController.text;
+    String email = emailController.text;
+    String phone = phoneController.text;
     Map<String, dynamic> personal = {
       "name": name,
       "lastname": lastname,
       "email": email,
       "phone": phone,
     };
-    storage.setItem('personaldetail', personal);
+    await LocalStorage('${user.email}').setItem('personaldetail', personal);
   }
 
   @override
   void initState() {
     super.initState();
-
+    fill();
     timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
       updateResume();
     });
@@ -94,7 +106,7 @@ class _PersonalDetailsState extends State<PersonalDetails> {
         ),
         TextField(
           controller: phoneController,
-          keyboardType: TextInputType.number,
+          // keyboardType: TextInputType.number,
           decoration: InputDecoration(
             labelText: "Phone Number",
             border: OutlineInputBorder(),

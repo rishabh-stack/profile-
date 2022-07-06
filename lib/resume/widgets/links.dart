@@ -5,6 +5,8 @@ import 'package:uuid/uuid.dart';
 import '../pdf_model.dart';
 import 'package:localstorage/localstorage.dart';
 import 'dart:async';
+import 'package:project/services/firebase_auth_methods.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 Uuid uuid = const Uuid();
 
@@ -17,16 +19,30 @@ class Link extends StatefulWidget {
 
 class _LinkState extends State<Link> {
   List<Links> linkList = <Links>[];
+  void fill() {
+    var lin = LocalStorage('${user.email}database').getItem('links');
+    if (lin != null) {
+      for (var i in lin) {
+        linkList.add(Links(
+          sectionId: uuid.v4(),
+          linkname: i["linkname"],
+          linkurl: i["linkurl"],
+        ));
+      }
+    }
+  }
+
   late Timer timer;
+  final user = FirebaseAuthMethods(FirebaseAuth.instance).user;
 
   void updateResume() async {
-    LocalStorage('aamtspn').setItem('links', linkList);
+    await LocalStorage('${user.email}').setItem('links', linkList);
   }
 
   @override
   void initState() {
     super.initState();
-
+    fill();
     timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
       updateResume();
     });
@@ -35,6 +51,7 @@ class _LinkState extends State<Link> {
   void addLinkSection(Links section) {
     setState(() {
       linkList.add(section);
+      updateResume();
     });
   }
 
@@ -42,6 +59,7 @@ class _LinkState extends State<Link> {
     linkList.remove(section);
     setState(() {
       linkList;
+      updateResume();
     });
   }
 

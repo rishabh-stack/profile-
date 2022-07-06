@@ -6,6 +6,8 @@ import 'package:localstorage/localstorage.dart';
 import '../pdf_model.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
+import 'package:project/services/firebase_auth_methods.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 Uuid uuid = const Uuid();
 
@@ -18,15 +20,32 @@ class Experience extends StatefulWidget {
 
 class _ExperienceState extends State<Experience> {
   List<Experiences> experienceList = <Experiences>[];
+  void fill() {
+    var exp = LocalStorage('${user.email}database').getItem('experience');
+    if (exp != null) {
+      for (var i in exp) {
+        experienceList.add(Experiences(
+          sectionId: uuid.v4(),
+          jobtitle: i["jobtitle"],
+          employer: i["employer"],
+          startDate: i["startDate"],
+          endDate: i["endDate"],
+          city: i["city"],
+        ));
+      }
+    }
+  }
+
   late Timer timer;
+  final user = FirebaseAuthMethods(FirebaseAuth.instance).user;
   void updateResume() async {
-    LocalStorage('aamtspn').setItem('experience', experienceList);
+    await LocalStorage('${user.email}').setItem('experience', experienceList);
   }
 
   @override
   void initState() {
     super.initState();
-
+    fill();
     timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
       updateResume();
     });
@@ -35,6 +54,7 @@ class _ExperienceState extends State<Experience> {
   void addExperienceSection(Experiences section) {
     setState(() {
       experienceList.add(section);
+      updateResume();
     });
   }
 
@@ -42,6 +62,7 @@ class _ExperienceState extends State<Experience> {
     experienceList.remove(section);
     setState(() {
       experienceList;
+      updateResume();
     });
   }
 

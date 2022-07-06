@@ -5,6 +5,8 @@ import 'package:uuid/uuid.dart';
 import '../pdf_model.dart';
 import 'package:localstorage/localstorage.dart';
 import 'dart:async';
+import 'package:project/services/firebase_auth_methods.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 Uuid uuid = const Uuid();
 
@@ -17,16 +19,25 @@ class Skill extends StatefulWidget {
 
 class _SkillState extends State<Skill> {
   List<Skills> SkillList = <Skills>[];
-  late Timer timer;
+  void fill() {
+    var ski = LocalStorage('${user.email}database').getItem('skills');
+    if (ski != null) {
+      for (var i in ski) {
+        SkillList.add(Skills(sectionId: uuid.v4(), skillname: i["skillname"]));
+      }
+    }
+  }
 
+  late Timer timer;
+  final user = FirebaseAuthMethods(FirebaseAuth.instance).user;
   void updateResume() async {
-    LocalStorage('aamtspn').setItem('skills', SkillList);
+    await LocalStorage('${user.email}').setItem('skills', SkillList);
   }
 
   @override
   void initState() {
     super.initState();
-
+    fill();
     timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
       updateResume();
     });
@@ -35,6 +46,7 @@ class _SkillState extends State<Skill> {
   void addSkillSection(Skills section) {
     setState(() {
       SkillList.add(section);
+      updateResume();
     });
   }
 
@@ -42,6 +54,7 @@ class _SkillState extends State<Skill> {
     SkillList.remove(section);
     setState(() {
       SkillList;
+      updateResume();
     });
   }
 

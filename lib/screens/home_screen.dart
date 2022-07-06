@@ -168,7 +168,7 @@ class _HomeState extends State<Home> {
                                     text: 'Email not verified!   Verify Email',
                                   ),
                                 SizedBox(
-                                  height: 100.0,
+                                  height: 20.0,
                                 ),
                                 TextButton(
                                   onPressed: () {
@@ -177,18 +177,18 @@ class _HomeState extends State<Home> {
                                         CupertinoPageRoute(
                                             builder: (context) => Resume()));
                                   },
-                                  child: Text("Create New Resume"),
+                                  child: Text(" Edit Resume Details"),
                                 ),
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                        context,
-                                        CupertinoPageRoute(
-                                            builder: (context) =>
-                                                MyHomePage()));
-                                  },
-                                  child: Text("View Resume"),
-                                ),
+                                // TextButton(
+                                //   onPressed: () {
+                                //     Navigator.push(
+                                //         context,
+                                //         CupertinoPageRoute(
+                                //             builder: (context) =>
+                                //                 MyHomePage()));
+                                //   },
+                                //   child: Text("View Resume"),
+                                // ),
                               ],
                             ),
                           ),

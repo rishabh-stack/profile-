@@ -6,6 +6,8 @@ import 'package:uuid/uuid.dart';
 import '../pdf_model.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
+import 'package:project/services/firebase_auth_methods.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 Uuid uuid = const Uuid();
 
@@ -17,12 +19,32 @@ class Education extends StatefulWidget {
 }
 
 class _EducationState extends State<Education> {
+  final user = FirebaseAuthMethods(FirebaseAuth.instance).user;
+
   List<Educations> educationList = <Educations>[];
+  void fill() {
+    var edu = LocalStorage('${user.email}database').getItem('education');
+    if (edu != null) {
+      for (var i in edu) {
+        educationList.add(Educations(
+          sectionId: uuid.v4(),
+          universityName: i["universityName"],
+          startDate: i["startDate"],
+          endDate: i["endDate"],
+          courseTaken: i["courseTaken"],
+          degree: i["degree"],
+          gpa: i["gpa"],
+        ));
+      }
+    }
+  }
+
   late Timer timer;
 
   void addEducationSection(Educations section) {
     setState(() {
       educationList.add(section);
+      updateResume();
     });
   }
 
@@ -30,17 +52,18 @@ class _EducationState extends State<Education> {
     educationList.remove(section);
     setState(() {
       educationList;
+      updateResume();
     });
   }
 
   void updateResume() async {
-    LocalStorage('aamtspn').setItem('education', educationList);
+    await LocalStorage('${user.email}').setItem('education', educationList);
   }
 
   @override
   void initState() {
     super.initState();
-
+    fill();
     timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
       updateResume();
     });

@@ -6,7 +6,10 @@ import '../firebase_options.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:project/services/firebase_auth_methods.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:localstorage/localstorage.dart';
 import 'dart:convert';
+import '../resume/pdf_model.dart';
+import 'dart:async';
 
 class UserProfile extends StatefulWidget {
   //final List<Educations> educationLists;
@@ -26,16 +29,30 @@ class _UserProfileState extends State<UserProfile> {
   List<dynamic> linksList = <dynamic>[];
 
   final user = FirebaseAuthMethods(FirebaseAuth.instance).user;
-
+  late Timer timer;
   void saveBio() async {
     final user = FirebaseAuthMethods(FirebaseAuth.instance).user;
+    LocalStorage('${user.email}database').setItem('personaldetail', []);
+    LocalStorage('${user.email}database').setItem('links', []);
+    LocalStorage('${user.email}database').setItem('education', []);
+    LocalStorage('${user.email}database').setItem('experience', []);
+    LocalStorage('${user.email}database').setItem('skills', []);
     final docRef =
         FirebaseFirestore.instance.collection("users").doc(user.email);
     docRef.get().then(
       (DocumentSnapshot doc) {
         final data = doc.data() as Map<String, dynamic>;
-
         setState(() {
+          LocalStorage('${user.email}database')
+              .setItem('personaldetail', data['personaldetails']);
+          LocalStorage('${user.email}database')
+              .setItem('links', jsonDecode(data['links']));
+          LocalStorage('${user.email}database')
+              .setItem('education', jsonDecode(data['educations']));
+          LocalStorage('${user.email}database')
+              .setItem('experience', jsonDecode(data['experiences']));
+          LocalStorage('${user.email}database')
+              .setItem('skills', jsonDecode(data['skills']));
           educationList = (jsonDecode(data['educations'])) ?? [];
           experienceList = (jsonDecode(data['experiences'])) ?? [];
           skillsList = (jsonDecode(data['skills'])) ?? [];
@@ -47,97 +64,13 @@ class _UserProfileState extends State<UserProfile> {
     );
   }
 
-  // WidgetsBinding.instance.addPostFrameCallback((_) => saveBio(context));
-
   @override
   void initState() {
     super.initState();
-    saveBio();
+    timer = Timer.periodic(const Duration(seconds: 2), (timer) async {
+      saveBio();
+    });
   }
-
-  // List<Experiences> experienceList = <Experiences>[
-  //   Experiences(
-  //     sectionId: uuid.v4(),
-  //     jobtitle: 'Member Technical',
-  //     employer: 'Web Development Cell, NIT Sikkim',
-  //     startDate: "Sep 2020",
-  //     endDate: "Present (1 yr 11 mos)",
-  //     city: "",
-  //   ),
-  //   Experiences(
-  //     sectionId: uuid.v4(),
-  //     jobtitle: 'Member Technical',
-  //     employer: 'Web Development Cell, NIT Sikkim',
-  //     startDate: "Sep 2020",
-  //     endDate: "Present (1 yr 11 mos)",
-  //     city: "",
-  //   ),
-  //   Experiences(
-  //     sectionId: uuid.v4(),
-  //     jobtitle: 'Member Technical',
-  //     employer: 'Web Development Cell, NIT Sikkim',
-  //     startDate: "Sep 2020",
-  //     endDate: "Present (1 yr 11 mos)",
-  //     city: "",
-  //   ),
-  // ];
-
-  // List<Skills> skillsList = <Skills>[
-  //   Skills(
-  //     sectionId: uuid.v4(),
-  //     skillname: 'Software Development',
-  //   ),
-  //   Skills(
-  //     sectionId: uuid.v4(),
-  //     skillname: 'Flutter',
-  //   ),
-  //   Skills(
-  //     sectionId: uuid.v4(),
-  //     skillname: 'CSS',
-  //   ),
-  //   Skills(
-  //     sectionId: uuid.v4(),
-  //     skillname: 'HTML',
-  //   ),
-  //   Skills(
-  //     sectionId: uuid.v4(),
-  //     skillname: 'React.js',
-  //   ),
-  //   Skills(
-  //     sectionId: uuid.v4(),
-  //     skillname: 'MongoDB',
-  //   ),
-  //   Skills(
-  //     sectionId: uuid.v4(),
-  //     skillname: 'TEST',
-  //   ),
-  //   Skills(
-  //     sectionId: uuid.v4(),
-  //     skillname: 'TEST',
-  //   ),
-  //   Skills(
-  //     sectionId: uuid.v4(),
-  //     skillname: 'TEST',
-  //   ),
-  // ];
-
-  // List<Links> linksList = <Links>[
-  //   Links(
-  //     sectionId: uuid.v4(),
-  //     linkname: 'LinkedIn',
-  //     linkurl: 'https://www.linkedin.com/in/saurav-kumar-7619441b9/',
-  //   ),
-  //   Links(
-  //     sectionId: uuid.v4(),
-  //     linkname: 'Instagram',
-  //     linkurl: '',
-  //   ),
-  //   Links(
-  //     sectionId: uuid.v4(),
-  //     linkname: 'Website',
-  //     linkurl: '',
-  //   ),
-  // ];
 
   @override
   Widget build(BuildContext context) {

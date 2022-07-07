@@ -32,33 +32,39 @@ class _UserProfileState extends State<UserProfile> {
   late Timer timer;
   void saveBio() async {
     final user = FirebaseAuthMethods(FirebaseAuth.instance).user;
-    LocalStorage('${user.email}database').setItem('personaldetail', []);
-    LocalStorage('${user.email}database').setItem('links', []);
-    LocalStorage('${user.email}database').setItem('education', []);
-    LocalStorage('${user.email}database').setItem('experience', []);
-    LocalStorage('${user.email}database').setItem('skills', []);
+
     final docRef =
         FirebaseFirestore.instance.collection("users").doc(user.email);
     docRef.get().then(
       (DocumentSnapshot doc) {
-        final data = doc.data() as Map<String, dynamic>;
-        setState(() {
-          LocalStorage('${user.email}database')
-              .setItem('personaldetail', data['personaldetails']);
-          LocalStorage('${user.email}database')
-              .setItem('links', jsonDecode(data['links']));
-          LocalStorage('${user.email}database')
-              .setItem('education', jsonDecode(data['educations']));
-          LocalStorage('${user.email}database')
-              .setItem('experience', jsonDecode(data['experiences']));
-          LocalStorage('${user.email}database')
-              .setItem('skills', jsonDecode(data['skills']));
-          educationList = (jsonDecode(data['educations'])) ?? [];
-          experienceList = (jsonDecode(data['experiences'])) ?? [];
-          skillsList = (jsonDecode(data['skills'])) ?? [];
-          linksList = (jsonDecode(data['links'])) ?? [];
-          WidgetsFlutterBinding.ensureInitialized();
-        });
+        if (doc.exists) {
+          final data = doc.data() as Map<String, dynamic>;
+          setState(() {
+            LocalStorage('${user.email}database')
+                .setItem('personaldetail', data['personaldetails']);
+            LocalStorage('${user.email}database')
+                .setItem('links', jsonDecode(data['links']));
+            LocalStorage('${user.email}database')
+                .setItem('education', jsonDecode(data['educations']));
+            LocalStorage('${user.email}database')
+                .setItem('experience', jsonDecode(data['experiences']));
+            LocalStorage('${user.email}database')
+                .setItem('skills', jsonDecode(data['skills']));
+            educationList = (jsonDecode(data['educations'])) ?? [];
+            experienceList = (jsonDecode(data['experiences'])) ?? [];
+            skillsList = (jsonDecode(data['skills'])) ?? [];
+            linksList = (jsonDecode(data['links'])) ?? [];
+            WidgetsFlutterBinding.ensureInitialized();
+          });
+        } else {
+          setState(() {
+            LocalStorage('${user.email}database').setItem('personaldetail', []);
+            LocalStorage('${user.email}database').setItem('links', []);
+            LocalStorage('${user.email}database').setItem('education', []);
+            LocalStorage('${user.email}database').setItem('experience', []);
+            LocalStorage('${user.email}database').setItem('skills', []);
+          });
+        }
       },
       onError: (e) => print("Error getting document: $e"),
     );

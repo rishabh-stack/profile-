@@ -56,6 +56,7 @@ class Links {
       );
 
   Map<String, dynamic> toJson() => {
+        "sectionId": sectionId,
         "linkname": linkname,
         "linkurl": linkurl,
       };
@@ -102,6 +103,7 @@ class Educations {
       );
 
   Map<String, dynamic> toJson() => {
+        "sectionId": sectionId,
         "universityName": universityName,
         "startDate": startDate,
         "endDate": endDate,
@@ -149,6 +151,7 @@ class Experiences {
       );
 
   Map<String, dynamic> toJson() => {
+        "sectionId": sectionId,
         "jobtitle": jobtitle,
         "employer": employer,
         "startDate": startDate,
@@ -181,6 +184,7 @@ class Skills {
       );
 
   Map<String, dynamic> toJson() => {
+        "sectionId": sectionId,
         "skillname": skillname,
       };
 }

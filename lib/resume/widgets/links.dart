@@ -23,11 +23,7 @@ class _LinkState extends State<Link> {
     var lin = LocalStorage('${user.email}database').getItem('links');
     if (lin != null) {
       for (var i in lin) {
-        linkList.add(Links(
-          sectionId: uuid.v4(),
-          linkname: i["linkname"],
-          linkurl: i["linkurl"],
-        ));
+        linkList.add(Links.fromJson(i));
       }
     }
   }

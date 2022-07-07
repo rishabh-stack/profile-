@@ -23,7 +23,7 @@ class _SkillState extends State<Skill> {
     var ski = LocalStorage('${user.email}database').getItem('skills');
     if (ski != null) {
       for (var i in ski) {
-        SkillList.add(Skills(sectionId: uuid.v4(), skillname: i["skillname"]));
+        SkillList.add(Skills.fromJson(i));
       }
     }
   }

@@ -26,15 +26,7 @@ class _EducationState extends State<Education> {
     var edu = LocalStorage('${user.email}database').getItem('education');
     if (edu != null) {
       for (var i in edu) {
-        educationList.add(Educations(
-          sectionId: uuid.v4(),
-          universityName: i["universityName"],
-          startDate: i["startDate"],
-          endDate: i["endDate"],
-          courseTaken: i["courseTaken"],
-          degree: i["degree"],
-          gpa: i["gpa"],
-        ));
+        educationList.add(Educations.fromJson(i));
       }
     }
   }

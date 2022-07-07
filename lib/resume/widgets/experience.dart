@@ -24,14 +24,7 @@ class _ExperienceState extends State<Experience> {
     var exp = LocalStorage('${user.email}database').getItem('experience');
     if (exp != null) {
       for (var i in exp) {
-        experienceList.add(Experiences(
-          sectionId: uuid.v4(),
-          jobtitle: i["jobtitle"],
-          employer: i["employer"],
-          startDate: i["startDate"],
-          endDate: i["endDate"],
-          city: i["city"],
-        ));
+        experienceList.add(Experiences.fromJson(i));
       }
     }
   }

@@ -13,6 +13,7 @@ import 'dart:convert';
 import './user_profile.dart';
 import '../resume/resume_preview.dart';
 import '../resume/make_pdf.dart';
+import '../pdf/pdf_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -179,16 +180,15 @@ class _HomeState extends State<Home> {
                                   },
                                   child: Text(" Edit Resume Details"),
                                 ),
-                                // TextButton(
-                                //   onPressed: () {
-                                //     Navigator.push(
-                                //         context,
-                                //         CupertinoPageRoute(
-                                //             builder: (context) =>
-                                //                 MyHomePage()));
-                                //   },
-                                //   child: Text("View Resume"),
-                                // ),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                        context,
+                                        CupertinoPageRoute(
+                                            builder: (context) => PdfPage()));
+                                  },
+                                  child: Text("View Resume"),
+                                ),
                               ],
                             ),
                           ),

@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:project/screens/username.dart';
 import '/firebase_options.dart';
 import './screens/email_auth/login_screen.dart';
 import './screens/home_screen.dart';
@@ -40,8 +41,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home:
-          (FirebaseAuth.instance.currentUser != null) ? Home() : LoginScreen(),
+      home: (FirebaseAuth.instance.currentUser != null)
+          ? UsernameScreen()
+          : LoginScreen(),
     );
   }
 }

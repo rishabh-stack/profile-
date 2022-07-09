@@ -2,9 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:project/screens/email_auth/login_screen.dart';
+import 'package:project/screens/username.dart';
 import 'package:project/utils/showSnackbar.dart';
 import 'package:project/screens/home_screen.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FirebaseAuthMethods {
   final FirebaseAuth _auth;
@@ -25,16 +27,21 @@ class FirebaseAuthMethods {
           email: email,
           password: password,
         );
-        if (!user.emailVerified) {
-          await sendEmailVerification(context);
-          showSnackBar(context, "Please check your mail verify your email!");
-          // restrict access to certain things using provider
-          // transition to another page instead of home screen
-        } else {
-          Navigator.popUntil(context, (route) => route.isFirst);
-          Navigator.pushReplacement(
-              context, CupertinoPageRoute(builder: (context) => Home()));
-        }
+        FirebaseFirestore.instance
+            .collection("users")
+            .doc(user.email)
+            .get()
+            .then((DocumentSnapshot doc) {
+          if (doc.exists) {
+            Navigator.popUntil(context, (route) => route.isFirst);
+            Navigator.pushReplacement(
+                context, CupertinoPageRoute(builder: (context) => Home()));
+          } else {
+            Navigator.popUntil(context, (route) => route.isFirst);
+            Navigator.pushReplacement(context,
+                CupertinoPageRoute(builder: (context) => UsernameScreen()));
+          }
+        });
       } on FirebaseAuthException catch (e) {
         showSnackBar(context, e.message!); // Displaying the error message
       }
@@ -52,11 +59,22 @@ class FirebaseAuthMethods {
         email: email,
         password: password,
       );
-      await sendEmailVerification(context);
       showSnackBar(context, 'Signed Up Succesfully');
-      Navigator.popUntil(context, (route) => route.isFirst);
-      Navigator.pushReplacement(
-          context, CupertinoPageRoute(builder: (context) => Home()));
+      FirebaseFirestore.instance
+          .collection("users")
+          .doc(user.email)
+          .get()
+          .then((DocumentSnapshot doc) {
+        if (doc.exists) {
+          Navigator.popUntil(context, (route) => route.isFirst);
+          Navigator.pushReplacement(
+              context, CupertinoPageRoute(builder: (context) => Home()));
+        } else {
+          Navigator.popUntil(context, (route) => route.isFirst);
+          Navigator.pushReplacement(context,
+              CupertinoPageRoute(builder: (context) => UsernameScreen()));
+        }
+      });
     } on FirebaseAuthException catch (e) {
       // if you want to display your own custom error message
       if (e.code == 'weak-password') {
@@ -70,15 +88,15 @@ class FirebaseAuthMethods {
   }
 
   // EMAIL VERIFICATION
-  Future<void> sendEmailVerification(BuildContext context) async {
-    try {
-      _auth.currentUser!.sendEmailVerification();
-      showSnackBar(context,
-          'Email verification sent! Please verify and try to login again');
-    } on FirebaseAuthException catch (e) {
-      showSnackBar(context, e.message!); // Display error message
-    }
-  }
+  // Future<void> sendEmailVerification(BuildContext context) async {
+  //   try {
+  //     _auth.currentUser!.sendEmailVerification();
+  //     showSnackBar(context,
+  //         'Email verification sent! Please verify and try to login again');
+  //   } on FirebaseAuthException catch (e) {
+  //     showSnackBar(context, e.message!); // Display error message
+  //   }
+  // }
 
   // GOOGLE SIGN IN
   Future<void> signInWithGoogle(BuildContext context) async {
@@ -90,9 +108,21 @@ class FirebaseAuthMethods {
             .addScope('https://www.googleapis.com/auth/contacts.readonly');
 
         await _auth.signInWithPopup(googleProvider);
-        Navigator.popUntil(context, (route) => route.isFirst);
-        Navigator.pushReplacement(
-            context, CupertinoPageRoute(builder: (context) => Home()));
+        FirebaseFirestore.instance
+            .collection("users")
+            .doc(user.email)
+            .get()
+            .then((DocumentSnapshot doc) {
+          if (doc.exists) {
+            Navigator.popUntil(context, (route) => route.isFirst);
+            Navigator.pushReplacement(
+                context, CupertinoPageRoute(builder: (context) => Home()));
+          } else {
+            Navigator.popUntil(context, (route) => route.isFirst);
+            Navigator.pushReplacement(context,
+                CupertinoPageRoute(builder: (context) => UsernameScreen()));
+          }
+        });
       } else {
         final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
 
@@ -108,9 +138,21 @@ class FirebaseAuthMethods {
           UserCredential userCredential =
               await _auth.signInWithCredential(credential);
           if (userCredential.user != null) {
-            Navigator.popUntil(context, (route) => route.isFirst);
-            Navigator.pushReplacement(
-                context, CupertinoPageRoute(builder: (context) => Home()));
+            FirebaseFirestore.instance
+                .collection("users")
+                .doc(user.email)
+                .get()
+                .then((DocumentSnapshot doc) {
+              if (doc.exists) {
+                Navigator.popUntil(context, (route) => route.isFirst);
+                Navigator.pushReplacement(
+                    context, CupertinoPageRoute(builder: (context) => Home()));
+              } else {
+                Navigator.popUntil(context, (route) => route.isFirst);
+                Navigator.pushReplacement(context,
+                    CupertinoPageRoute(builder: (context) => UsernameScreen()));
+              }
+            });
           } else {
             showSnackBar(context, "Invalid credentials!");
           }

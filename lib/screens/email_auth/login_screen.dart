@@ -78,6 +78,9 @@ class _LoginScreenState extends State<LoginScreen> {
               style: TextStyle(fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
+            SizedBox(
+              height: 20,
+            ),
             CustomButton(
               onTap: () {
                 FirebaseAuthMethods(FirebaseAuth.instance)

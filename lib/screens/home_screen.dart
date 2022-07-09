@@ -47,40 +47,18 @@ class _HomeState extends State<Home> {
 
   Map<String, dynamic> ans = new Map<String, dynamic>();
 
-  void saveBio() async {
-    final user = FirebaseAuthMethods(FirebaseAuth.instance).user;
-    final docRef =
-        FirebaseFirestore.instance.collection("users").doc(user.email);
-    docRef.get().then(
-      (DocumentSnapshot doc) {
-        final data = doc.data() as Map<String, dynamic>;
-
-        setState(() {
-          ans = data;
-          educationList = (jsonDecode(data['educations']));
-          experienceList = (jsonDecode(data['experiences']));
-          skillsList = (jsonDecode(data['skills']));
-          linksList = (jsonDecode(data['links']));
-          WidgetsFlutterBinding.ensureInitialized();
-        });
-      },
-      onError: (e) => print("Error getting document: $e"),
-    );
-  }
-
   // WidgetsBinding.instance.addPostFrameCallback((_) => saveBio(context));
 
   @override
   void initState() {
     super.initState();
-    saveBio();
   }
 
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuthMethods(FirebaseAuth.instance).user;
     final email = user.email;
-    final name = user.displayName;
+    final name = user.displayName ?? 'User';
     final Image = user.photoURL;
 
     return Scaffold(
@@ -160,14 +138,6 @@ class _HomeState extends State<Home> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
-                                if (!user.emailVerified && !user.isAnonymous)
-                                  CustomButton(
-                                    onTap: () {
-                                      FirebaseAuthMethods(FirebaseAuth.instance)
-                                          .sendEmailVerification(context);
-                                    },
-                                    text: 'Email not verified!   Verify Email',
-                                  ),
                                 SizedBox(
                                   height: 20.0,
                                 ),
@@ -356,7 +326,7 @@ class _UserInformationState extends State<UserInformation> {
     String? profilePic = widget.user.photoURL;
     bool isPicNull = profilePic == null;
     String? email = widget.user.email;
-    String? name = widget.user.displayName;
+    String? name = widget.user.displayName ?? 'User';
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,

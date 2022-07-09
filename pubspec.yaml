@@ -48,8 +48,9 @@ dependencies:
   pdf: ^3.8.1
   printing: ^5.9.1
   path_provider: ^2.0.11
-  flutter_secure_storage: ^5.0.2
+  shared_preferences: ^2.0.12
   open_file: ^3.2.1
+  url_strategy: ^0.2.0
   
 dev_dependencies:
   flutter_test:

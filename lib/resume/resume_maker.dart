@@ -47,9 +47,10 @@ class _ResumeState extends State<Resume> {
 
   @override
   Widget build(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
-        title: Text("Resume"),
+        title: Text("Edit Details"),
       ),
       body: SingleChildScrollView(
         child: Row(
@@ -58,47 +59,52 @@ class _ResumeState extends State<Resume> {
               flex: 1,
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    PersonalDetails(),
-                    const SizedBox(
-                      height: 20.0,
-                    ),
-                    Link(),
-                    const SizedBox(
-                      height: 20.0,
-                    ),
-                    Education(),
-                    const SizedBox(
-                      height: 20.0,
-                    ),
-                    Experience(),
-                    const SizedBox(
-                      height: 20.0,
-                    ),
-                    Skill(),
-                    const SizedBox(
-                      height: 20.0,
-                    ),
-                    CustomButton(
-                      onTap: () {
-                        saveBio();
-                      },
-                      text: 'Save Details',
-                    ),
-                  ],
+                child: Container(
+                  margin: EdgeInsets.symmetric(
+                      horizontal: width / 6.5 > 200.0 ? 500 : width / 6.5,
+                      vertical: 100.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      PersonalDetails(),
+                      const SizedBox(
+                        height: 20.0,
+                      ),
+                      Link(),
+                      const SizedBox(
+                        height: 20.0,
+                      ),
+                      Education(),
+                      const SizedBox(
+                        height: 20.0,
+                      ),
+                      Experience(),
+                      const SizedBox(
+                        height: 20.0,
+                      ),
+                      Skill(),
+                      const SizedBox(
+                        height: 20.0,
+                      ),
+                      CustomButton(
+                        onTap: () {
+                          saveBio();
+                        },
+                        text: 'Save Details',
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-            Expanded(
-              flex: 1,
-              child: Column(
-                children: <Widget>[
-                  Text("Column"),
-                ],
-              ),
-            ),
+            // Expanded(
+            //   flex: 1,
+            //   child: Column(
+            //     children: <Widget>[
+            //       Text("Column"),
+            //     ],
+            //   ),
+            // ),
           ],
         ),
       ),

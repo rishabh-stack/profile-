@@ -90,19 +90,21 @@ class _UserProfileState extends State<UserProfile> {
         children: <Widget>[
           // Personal Details
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
             child: user.email != null
                 ? Text('${user.displayName}',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 20.0,
                     ))
-                : Text("Please Login"),
+                : const Text("Please Login"),
           ),
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 1.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 20.0, vertical: 1.0),
             child: Row(children: <Widget>[
-              Icon(Icons.mail_outline),
-              SizedBox(width: 2.0),
+              const Icon(Icons.mail_outline),
+              const SizedBox(width: 2.0),
               Text('${user.email ?? "Please login"}'),
             ]),
           ),
@@ -147,23 +149,23 @@ class _UserProfileState extends State<UserProfile> {
                                   Padding(
                                     padding: const EdgeInsets.symmetric(
                                         vertical: 2.0),
-                                    child: Text(
-                                        data['universityName'].toString() ?? "",
-                                        style: TextStyle(
-                                          fontSize: 20.0,
-                                        )),
+                                    child:
+                                        Text(data['universityName'].toString(),
+                                            style: const TextStyle(
+                                              fontSize: 20.0,
+                                            )),
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.symmetric(
                                         vertical: 2.0),
                                     child: Text(
-                                        '${data['degree'].toString() ?? ""} - ${data['courseTaken'].toString() ?? ""}'),
+                                        '${data['degree'].toString()} - ${data['courseTaken'].toString()}'),
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.symmetric(
                                         vertical: 2.0),
                                     child: Text(
-                                        '${data['startDate'].toString() ?? ""} - ${data['endDate'].toString() ?? ""}'),
+                                        '${data['startDate'].toString()} - ${data['endDate'].toString()}'),
                                   ),
                                 ],
                               )),
@@ -213,22 +215,21 @@ class _UserProfileState extends State<UserProfile> {
                                   Padding(
                                     padding: const EdgeInsets.symmetric(
                                         vertical: 2.0),
-                                    child:
-                                        Text(data['jobtitle'].toString() ?? "",
-                                            style: const TextStyle(
-                                              fontSize: 20.0,
-                                            )),
+                                    child: Text(data['jobtitle'].toString(),
+                                        style: const TextStyle(
+                                          fontSize: 20.0,
+                                        )),
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.symmetric(
                                         vertical: 2.0),
-                                    child: Text('${data['employer'] ?? ""}'),
+                                    child: Text('${data['employer']}'),
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.symmetric(
                                         vertical: 2.0),
                                     child: Text(
-                                        '${data['startDate'].toString() ?? ""} - ${data['endDate'].toString() ?? ""}'),
+                                        '${data['startDate'].toString()} - ${data['endDate'].toString()}'),
                                   ),
                                 ],
                               )),
@@ -266,15 +267,18 @@ class _UserProfileState extends State<UserProfile> {
                   itemBuilder: (BuildContext ctx, index) {
                     var data = skillsList[index];
                     return Container(
-                      margin: const EdgeInsets.all(5),
-                      color: Colors.grey,
-                      width: 120,
+                      margin: const EdgeInsets.symmetric(horizontal: 5),
+                      //color: Colors.grey,
+                      //width: 120,
                       alignment: Alignment.center,
-                      child: Text(
-                        data['skillname'].toString() ?? "",
-                        style:
-                            const TextStyle(color: Colors.white, fontSize: 10),
+                      child: Chip(
+                        label: Text(data['skillname'].toString()),
                       ),
+                      // child: Text(
+                      //   data['skillname'].toString(),
+                      //   style:
+                      //       const TextStyle(color: Colors.white, fontSize: 10),
+                      // ),
                     );
                   },
                 )),
@@ -310,12 +314,12 @@ class _UserProfileState extends State<UserProfile> {
                         padding: const EdgeInsets.only(
                             left: 24, right: 30, bottom: 2),
                         child: GestureDetector(
-                          child: Text(data['linkname'].toString() ?? "",
+                          child: Text(data['linkname'].toString(),
                               style: const TextStyle(
                                   decoration: TextDecoration.underline,
                                   color: Colors.blue)),
                           onTap: () async {
-                            var url = (data['linkurl'].toString() ?? "");
+                            var url = (data['linkurl'].toString());
                             if (await canLaunch(url)) launch(url);
                           },
                         ));

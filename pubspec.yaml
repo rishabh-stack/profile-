@@ -51,6 +51,7 @@ dependencies:
   shared_preferences: ^2.0.12
   open_file: ^3.2.1
   url_strategy: ^0.2.0
+  fluro: ^2.0.3
   
 dev_dependencies:
   flutter_test:

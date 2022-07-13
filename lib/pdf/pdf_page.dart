@@ -6,7 +6,8 @@ import './util.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 class PdfPage extends StatefulWidget {
-  const PdfPage({Key? key}) : super(key: key);
+  final String user;
+  const PdfPage({Key? key, required this.user}) : super(key: key);
 
   @override
   State<PdfPage> createState() => _PdfPageState();
@@ -30,6 +31,8 @@ class _PdfPageState extends State<PdfPage> {
 
   @override
   Widget build(BuildContext context) {
+    print("resume : " + widget.user);
+
     pw.RichText.debug = true;
     final actions = <PdfPreviewAction>[
       if (!kIsWeb)

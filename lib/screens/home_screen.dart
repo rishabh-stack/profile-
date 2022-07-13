@@ -1,29 +1,15 @@
-import 'package:firebase_core/firebase_core.dart';
+//import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:project/firebase_options.dart';
+//import 'package:project/firebase_options.dart';
 import 'package:project/services/firebase_auth_methods.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:project/widgets/custom_button.dart';
+//import 'package:project/widgets/custom_button.dart';
 import 'package:flutter/cupertino.dart';
 import '../resume/resume_maker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../resume/pdf_model.dart';
 import 'dart:convert';
 import './user_profile.dart';
-import '../resume/resume_preview.dart';
-import '../resume/make_pdf.dart';
-import '../pdf/pdf_page.dart';
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  runApp(MaterialApp(
-    home: Home(),
-  ));
-}
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -47,19 +33,59 @@ class _HomeState extends State<Home> {
 
   Map<String, dynamic> ans = new Map<String, dynamic>();
 
+  void saveBio() async {
+    final user = FirebaseAuthMethods(FirebaseAuth.instance).user;
+    final docRef =
+        FirebaseFirestore.instance.collection("users").doc(user.email);
+    docRef.get().then(
+      (DocumentSnapshot doc) {
+        final data = doc.data() as Map<String, dynamic>;
+
+        setState(() {
+          ans = data;
+          educationList = (jsonDecode(data['educations']));
+          experienceList = (jsonDecode(data['experiences']));
+          skillsList = (jsonDecode(data['skills']));
+          linksList = (jsonDecode(data['links']));
+          WidgetsFlutterBinding.ensureInitialized();
+        });
+      },
+      onError: (e) => print("Error getting document: $e"),
+    );
+  }
+
+  User user = FirebaseAuthMethods(FirebaseAuth.instance).user;
+
   // WidgetsBinding.instance.addPostFrameCallback((_) => saveBio(context));
 
   @override
   void initState() {
     super.initState();
+    setState(() {
+      user = FirebaseAuthMethods(FirebaseAuth.instance).user;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuthMethods(FirebaseAuth.instance).user;
+    //final user = FirebaseAuthMethods(FirebaseAuth.instance).user;
     final email = user.email;
-    final name = user.displayName ?? 'User';
+    final name = user.displayName;
     final Image = user.photoURL;
+    final username = FirebaseFirestore.instance.collection("users").doc(email);
+    var user_id = "";
+    username.get().then(
+      (DocumentSnapshot doc) {
+        final data = doc.data() as Map<String, dynamic>;
+
+        user_id = data['username'];
+
+        // ...
+      },
+      onError: (e) => print("Error getting document: $e"),
+    );
+
+    print(' User Name : ${username}');
 
     return Scaffold(
       appBar: AppBar(
@@ -138,9 +164,17 @@ class _HomeState extends State<Home> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
-                                SizedBox(
-                                  height: 20.0,
-                                ),
+                                if (!user.emailVerified && !user.isAnonymous)
+                                  // CustomButton(
+                                  //   onTap: () {
+                                  //     FirebaseAuthMethods(FirebaseAuth.instance)
+                                  //         .sendEmailVerification(context);
+                                  //   },
+                                  //   text: 'Email not verified!   Verify Email',
+                                  // ),
+                                  SizedBox(
+                                    height: 20.0,
+                                  ),
                                 TextButton(
                                   onPressed: () {
                                     Navigator.push(
@@ -152,10 +186,12 @@ class _HomeState extends State<Home> {
                                 ),
                                 TextButton(
                                   onPressed: () {
-                                    Navigator.push(
-                                        context,
-                                        CupertinoPageRoute(
-                                            builder: (context) => PdfPage()));
+                                    // Navigator.push(
+                                    //     context,
+                                    //     CupertinoPageRoute(
+                                    //         builder: (context) => PdfPage()));
+                                    Navigator.pushNamed(
+                                        context, '/resume/$user_id');
                                   },
                                   child: Text("View Resume"),
                                 ),
@@ -266,23 +302,60 @@ class buildContent extends StatefulWidget {
 class _buildContentState extends State<buildContent> {
   @override
   Widget build(BuildContext context) {
-    return (Expanded(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    double width = MediaQuery.of(context).size.width;
+
+    EdgeInsets fn() {
+      if (width > 1200) {
+        return EdgeInsets.all(28);
+      } else if (width <= 1200 && width >= 800) {
+        return const EdgeInsets.all(5);
+      }
+      return const EdgeInsets.all(5);
+    }
+
+    double spacing() {
+      if (width > 1200) {
+        return 25;
+      } else if (width <= 1200 && width >= 800) {
+        return 5;
+      }
+      return 5;
+    }
+
+    return Expanded(
+      child: GridView.count(
+        primary: false,
+        padding: fn(),
+        crossAxisSpacing: spacing(),
+        mainAxisSpacing: spacing(),
+        crossAxisCount: 4,
         children: <Widget>[
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              buildIcon(icon: FontAwesomeIcons.facebook),
-              buildIcon(icon: FontAwesomeIcons.instagram),
-              buildIcon(icon: FontAwesomeIcons.twitter),
-              buildIcon(icon: FontAwesomeIcons.linkedin),
-            ],
-          )
+          // widgets
+          buildIcon(icon: FontAwesomeIcons.facebook),
+          buildIcon(icon: FontAwesomeIcons.instagram),
+          buildIcon(icon: FontAwesomeIcons.twitter),
+          buildIcon(icon: FontAwesomeIcons.linkedin),
         ],
       ),
-    ));
+    );
+
+    //     (Expanded(
+    //   child: Column(
+    //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    //     children: <Widget>[
+    //       const SizedBox(height: 8),
+    //       Row(
+    //         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    //         children: <Widget>[
+    //           buildIcon(icon: FontAwesomeIcons.facebook),
+    //           buildIcon(icon: FontAwesomeIcons.instagram),
+    //           buildIcon(icon: FontAwesomeIcons.twitter),
+    //           buildIcon(icon: FontAwesomeIcons.linkedin),
+    //         ],
+    //       )
+    //     ],
+    //   ),
+    // ));
   }
 }
 
@@ -297,6 +370,19 @@ class buildIcon extends StatefulWidget {
 class _buildIconState extends State<buildIcon> {
   @override
   Widget build(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
+
+    double handleSize() {
+      if (width > 1200) {
+        return 25;
+      } else if (width <= 1200 && width >= 1000) {
+        return 25;
+      } else if (width < 1000 && width >= 800) {
+        return 20;
+      }
+      return 15;
+    }
+
     return CircleAvatar(
         radius: 25,
         child: Material(
@@ -306,7 +392,7 @@ class _buildIconState extends State<buildIcon> {
             child: InkWell(
               onTap: () {},
               child: Center(
-                child: Icon(widget.icon, size: 32),
+                child: Icon(widget.icon, size: handleSize()),
               ),
             )));
   }
@@ -326,45 +412,37 @@ class _UserInformationState extends State<UserInformation> {
     String? profilePic = widget.user.photoURL;
     bool isPicNull = profilePic == null;
     String? email = widget.user.email;
-    String? name = widget.user.displayName ?? 'User';
+    String? name = widget.user.displayName;
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Container(
-          height: 50,
-          width: 50,
-          decoration: BoxDecoration(
-              // image: DecorationImage(
-              //   image: NetworkImage(profilePic!),
-              //   fit: BoxFit.contain,
-              // ),
-              ),
-          child: isPicNull == true
-              ? Center(
-                  child: Text(
-                    email!.substring(0, 1).toUpperCase(),
-                  ),
-                )
-              : null,
-        ),
-        const SizedBox(
-          width: 16,
-        ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              name!,
-            ),
-            Text(
-              email!,
-            )
-          ],
-        ),
-        const Spacer(),
-      ],
-    );
+    return Expanded(
+        child: ListView.builder(
+            padding: const EdgeInsets.symmetric(vertical: 20),
+            itemCount: 1,
+            itemBuilder: (_, int index) {
+              return ListTile(
+                  onTap: () {},
+                  title: Text('Name : ${name!} \n\nEmail : ${email!} \n'));
+            })
+        // GridView.count(
+        //   primary: false,
+        //   padding: const EdgeInsets.all(20),
+        //   keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.manual,
+        //   controller: ScrollController(
+        //     keepScrollOffset: false,
+        //   ),
+        //   crossAxisSpacing: 10,
+        //   //mainAxisSpacing: 10,
+        //   crossAxisCount: 2,
+        //   // crossAxisAlignment: CrossAxisAlignment.start,
+        //   children: [
+        //     Text(
+        //       'Name : ${name!}',
+        //     ),
+        //     Text(
+        //       'Email : ${email!}',
+        //     )
+        //   ],
+        // ),
+        );
   }
 }

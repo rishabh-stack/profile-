@@ -4,10 +4,10 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import './util.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:get/get.dart';
 
 class PdfPage extends StatefulWidget {
-  final String user;
-  const PdfPage({Key? key, required this.user}) : super(key: key);
+  const PdfPage({Key? key}) : super(key: key);
 
   @override
   State<PdfPage> createState() => _PdfPageState();
@@ -15,6 +15,8 @@ class PdfPage extends StatefulWidget {
 
 class _PdfPageState extends State<PdfPage> {
   PrintingInfo? printingInfo;
+
+  var user = Get.parameters['user'];
 
   @override
   void initState() {
@@ -31,7 +33,7 @@ class _PdfPageState extends State<PdfPage> {
 
   @override
   Widget build(BuildContext context) {
-    print("resume : " + widget.user);
+    print("resume : " + user!);
 
     pw.RichText.debug = true;
     final actions = <PdfPreviewAction>[

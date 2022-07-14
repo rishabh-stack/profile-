@@ -1,27 +1,27 @@
-import 'package:flutter/material.dart';
-import 'package:fluro/fluro.dart';
 import '../screens/email_auth/login_screen.dart';
 import '../screens/home_screen.dart';
 import '../pdf/pdf_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:get/get.dart';
+import '../screens/email_auth/signup_screen.dart';
 
-class Routes {
-  static final router = FluroRouter();
-
-  static var splashHandler = Handler(
-      handlerFunc: (BuildContext? context, Map<String, dynamic> params) {
-    return (FirebaseAuth.instance.currentUser != null) ? Home() : LoginScreen();
-  });
-
-  static var placeHandler = Handler(
-      handlerFunc: (BuildContext? context, Map<String, dynamic> params) {
-    print(params);
-    return PdfPage(user: params["user"][0]);
-  });
-
-  static dynamic defineRoutes() {
-    router.define("/resume/:user",
-        handler: placeHandler, transitionType: TransitionType.inFromLeft);
-    router.define("/", handler: splashHandler);
-  }
-}
+List<GetPage> getPages = [
+  GetPage(
+      name: '/',
+      page: () => (FirebaseAuth.instance.currentUser != null)
+          ? const Home()
+          : const LoginScreen()),
+  GetPage(name: '/resume/:user', page: () => const PdfPage()),
+  GetPage(
+      name: '/login',
+      page: () => const LoginScreen(),
+      transition: Transition.cupertino),
+  GetPage(
+      name: '/signup',
+      page: () => const SignUpScreen(),
+      transition: Transition.cupertino),
+  // GetPage(
+  //     name: '/home',
+  //     page: () => const Home(),
+  //     transition: Transition.cupertino),
+];

@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:project/services/firebase_auth_methods.dart';
 import 'package:project/widgets/custom_button.dart';
+import 'package:get/get.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -25,6 +26,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    //Get.offAndToNamed('/home');
     double width = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
@@ -92,10 +94,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     CupertinoButton(
                       onPressed: () {
-                        Navigator.push(
-                            context,
-                            CupertinoPageRoute(
-                                builder: (context) => SignUpScreen()));
+                        Navigator.pushNamed(context, '/signup');
                       },
                       child: Text("Create an Account"),
                     ),

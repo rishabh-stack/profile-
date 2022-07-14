@@ -1,19 +1,15 @@
 import 'package:flutter/material.dart';
-import '../resume/pdf_model.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:firebase_core/firebase_core.dart';
-import '../firebase_options.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:project/services/firebase_auth_methods.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:localstorage/localstorage.dart';
 import 'dart:convert';
-import '../resume/pdf_model.dart';
 import 'dart:async';
 
 class UserProfile extends StatefulWidget {
   //final List<Educations> educationLists;
-  UserProfile({Key? key}) : super(key: key);
+  const UserProfile({Key? key}) : super(key: key);
 
   @override
   State<UserProfile> createState() => _UserProfileState();

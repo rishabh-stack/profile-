@@ -145,8 +145,7 @@ class FirebaseAuthMethods {
                 .then((DocumentSnapshot doc) {
               if (doc.exists) {
                 Navigator.popUntil(context, (route) => route.isFirst);
-                Navigator.pushReplacement(
-                    context, CupertinoPageRoute(builder: (context) => Home()));
+                Navigator.pushNamed(context, '/home');
               } else {
                 Navigator.popUntil(context, (route) => route.isFirst);
                 Navigator.pushReplacement(context,
@@ -178,8 +177,7 @@ class FirebaseAuthMethods {
       await _auth.signOut();
       showSnackBar(context, "signed out!");
       Navigator.popUntil(context, (route) => route.isFirst);
-      Navigator.pushReplacement(
-          context, CupertinoPageRoute(builder: (context) => LoginScreen()));
+      Navigator.pushNamed(context, '/login');
     } on FirebaseAuthException catch (e) {
       showSnackBar(context, e.message!); // Displaying the error message
     }

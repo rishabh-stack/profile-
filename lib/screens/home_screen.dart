@@ -10,6 +10,7 @@ import '../resume/resume_maker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:convert';
 import './user_profile.dart';
+import 'package:get/get.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -69,6 +70,8 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     //final user = FirebaseAuthMethods(FirebaseAuth.instance).user;
+    //Get.offAndToNamed('/home');
+
     final email = user.email;
     final name = user.displayName;
     final Image = user.photoURL;
@@ -164,17 +167,9 @@ class _HomeState extends State<Home> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
-                                if (!user.emailVerified && !user.isAnonymous)
-                                  // CustomButton(
-                                  //   onTap: () {
-                                  //     FirebaseAuthMethods(FirebaseAuth.instance)
-                                  //         .sendEmailVerification(context);
-                                  //   },
-                                  //   text: 'Email not verified!   Verify Email',
-                                  // ),
-                                  SizedBox(
-                                    height: 20.0,
-                                  ),
+                                const SizedBox(
+                                  height: 20.0,
+                                ),
                                 TextButton(
                                   onPressed: () {
                                     Navigator.push(
@@ -182,7 +177,7 @@ class _HomeState extends State<Home> {
                                         CupertinoPageRoute(
                                             builder: (context) => Resume()));
                                   },
-                                  child: Text(" Edit Resume Details"),
+                                  child: const Text(" Edit Resume Details"),
                                 ),
                                 TextButton(
                                   onPressed: () {
@@ -193,7 +188,7 @@ class _HomeState extends State<Home> {
                                     Navigator.pushNamed(
                                         context, '/resume/$user_id');
                                   },
-                                  child: Text("View Resume"),
+                                  child: const Text("View Resume"),
                                 ),
                               ],
                             ),
